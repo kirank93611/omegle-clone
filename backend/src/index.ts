@@ -1,37 +1,20 @@
-import {WebSocket,WebSocketServer} from 'ws'
+import http from "http";
 
-const wss=new WebSocketServer({port:8080});
+import {Socket} from "socket.io"
 
-let senderSocket:null | WebSocket=null;
-let receiverSocket:null | WebSocket=null;
+const express = require("express");
+const { Server } = require('socket.io');
 
-wss.on('connection',function connection(ws){
-    ws.on('error',console.error);
 
-    ws.on('message', function message(data: any) {
-        const message = JSON.parse(data);
-        if (message.type === 'sender') {
-          senderSocket = ws;
-        } else if (message.type === 'receiver') {
-          receiverSocket = ws;
-        } else if (message.type === 'createOffer') {
-          if (ws !== senderSocket) {
-            return;
-          }
-          receiverSocket?.send(JSON.stringify({ type: 'createOffer', sdp: message.sdp }));
-        } else if (message.type === 'createAnswer') {
-          if (ws !== receiverSocket) {
-            return;
-          }
-          senderSocket?.send(JSON.stringify({ type: 'createAnswer', sdp: message.sdp }));
-        } else if (message.type === 'iceCandidate') {
-          if (ws === senderSocket) {
-            receiverSocket?.send(JSON.stringify({ type: 'iceCandidate', candidate: message.candidate }));
-          } else if (ws === receiverSocket) {
-            senderSocket?.send(JSON.stringify({ type: 'iceCandidate', candidate: message.candidate }));
-          }
-        }
-      });
-    ws.send('something');
-}
-) 
+const app=express();
+const server=http.createServer(http);
+
+const io = new Server(app);
+
+io.on('connection', (socket:Socket) => {
+  console.log('a user connected');
+});
+
+server.listen(3000, () => {
+  console.log('listening on *:3000');
+});

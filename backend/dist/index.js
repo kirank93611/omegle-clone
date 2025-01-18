@@ -1,14 +1,17 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const ws_1 = require("ws");
-const wss = new ws_1.WebSocketServer({ port: 8080 });
-let senderSocket = null;
-let receiverSocket = null;
-wss.on('connection', function connection(ws) {
-    ws.on('error', console.error);
-    ws.on('message', function message(data) {
-        const message = JSON.parse(data);
-        //Handle incoming messages here
-    });
-    ws.send('something');
+const http_1 = __importDefault(require("http"));
+const express = require("express");
+const { Server } = require('socket.io');
+const app = express();
+const server = http_1.default.createServer(http_1.default);
+const io = new Server(app);
+io.on('connection', (socket) => {
+    console.log('a user connected');
+});
+server.listen(3000, () => {
+    console.log('listening on *:3000');
 });
